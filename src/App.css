@@ -2,6 +2,12 @@
   /* border: 2px solid rgb(0, 0, 0); */
   /* padding: 1rem; */
   border-radius: 0.2rem;
+  /* position: relative; */
+}
+
+.app_container {
+  /* border: 2px solid red; */
+  /* position: relative; */
 }
 
 .input_container {
@@ -14,6 +20,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 1.5rem;
   border-radius: 1rem;
   position: absolute;
@@ -57,9 +64,9 @@
   border-radius: 8px;
   padding: 0.25rem 1rem;
   min-height: 3rem;
-  max-height: 5rem;
-  min-width: 10rem;
-  max-width: 20rem;
+  max-height: 6rem;
+  min-width: 5rem;
+  max-width: 25rem;
   overflow-x: auto;
   overflow-y: auto;
   white-space: nowrap;
@@ -89,6 +96,15 @@
   box-shadow: none !important;
   border: 2px solid rgb(0, 0, 0) !important;
   /* border-width: 2rem !important; */
+}
+
+.formula_container {
+  /* border: 2px solid red; */
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .input_container .function_logo {
@@ -124,13 +140,11 @@
   /* border: 2px solid red; */
 }
 
-.input_container .input {
-  /* border: 2px solid red; */
+/* .input_container .input {
   height: 3rem;
   width: 12rem;
-  /* max-width: 1rem; */
+  max-width: 1rem;
   overflow: hidden;
-  /* border: 2px solid red; */
   display: flex;
   justify-content: start;
   align-items: center;
@@ -141,4 +155,41 @@
   transform: translate(0, -50%);
   white-space: nowrap;
   pointer-events: none;
+} */
+
+.error_container {
+  height: 5rem;
+  aspect-ratio: 3;
+  /* border: 2px solid red; */
+  z-index: 10;
+  background-color: rgb(245, 86, 86);
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 1.5rem;
+  border-radius: 0.5rem;
+  position: fixed;
+  top: 90%;
+  left: 75%;
+  transform: translate(-5%, -90%);
+  padding: 1.5rem;
+  user-select: none;
+  cursor: pointer;
+  color: white;
+  font-family: "Mozilla Text", sans-serif;
+}
+
+.error_title {
+  font-weight: bold;
+  font-size: 1.2rem;
+}
+
+.error_info {
+  font-size: 0.7rem;
+  position: absolute;
+  top: 90%;
+  left: 50%;
+  transform: translate(-50%, -90%);
+  color: rgb(253, 214, 214);
 }

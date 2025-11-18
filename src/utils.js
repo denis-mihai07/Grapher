@@ -1,4 +1,4 @@
-const translateLatexFormula = (latexString) => {
+export const translateLatexFormula = (latexString) => {
   if (!latexString || typeof latexString !== "string") return "";
 
   const processContent = (content) => {
@@ -75,7 +75,7 @@ const translateLatexFormula = (latexString) => {
 
   const fixFunctionParentheses = (str) => {
     const functionPattern =
-      /\b(sin|cos|tan|log|ln|exp|sqrt|asin|acos|atan)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
+      /\b(sin|cos|tan|log|log10|ln|exp|sqrt|asin|acos|atan)\s+([a-zA-Z_][a-zA-Z0-9_]*)/g;
 
     return str.replace(functionPattern, (_, funcName, variable) => {
       return `${funcName}(${variable})`;
@@ -87,4 +87,16 @@ const translateLatexFormula = (latexString) => {
   return result.trim();
 };
 
-export default translateLatexFormula;
+const defaultGraphicFunctions = [
+  "\\frac{1}{x^3 - 3x}",
+  "0.25 x^3+0.25 x^2 - 2x",
+  "\\sin\\ x\\ \\cdot e^{-0.1x}",
+  "\\frac{1}{x-1}\\cdot\\pi",
+];
+
+export const getDefaultFunction = () => {
+  const random_index = Math.floor(
+    Math.random() * defaultGraphicFunctions.length
+  );
+  return defaultGraphicFunctions[random_index];
+};

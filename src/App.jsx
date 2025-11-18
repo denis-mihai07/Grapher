@@ -6,7 +6,7 @@ import * as math from "mathjs";
 import { InlineMath } from "react-katex";
 import "katex/dist/katex.min.css";
 import { addStyles, EditableMathField } from "react-mathquill";
-import translateLatexFormula from "./utils.js";
+import { translateLatexFormula, getDefaultFunction } from "./utils.js";
 addStyles();
 
 const math_symbols = {
@@ -16,27 +16,52 @@ const math_symbols = {
   N: "\\pmb{\\mathbb{N}}",
 };
 
+const defaultFunction = getDefaultFunction();
+
 function App() {
-  const [funcFormula, setFuncFormula] = useState("x");
-  const [draftFormula, setDraftFormula] = useState("x");
+  const [funcFormula, setFuncFormula] = useState(defaultFunction);
+  const [draftFormula, setDraftFormula] = useState(defaultFunction);
   const [validFormula, setValidFormula] = useState(true);
+  const [validImage, setValidImage] = useState(true);
+  const [validFormulaError, setValidFormulaError] = useState(true);
 
   const handleMathChange = (mathField) => {
     setValidFormula(true);
     setDraftFormula(mathField.latex());
   };
 
-  useEffect(() => {
-    console.log(draftFormula);
-  }, [draftFormula]);
+  // useEffect(() => {
+  //   console.log(draftFormula);
+  // }, [draftFormula]);
 
-  const clickHandler = (e) => {};
+  useEffect(() => {
+    console.log("formula e: " + validFormula);
+  }, [funcFormula]);
+
+  // Handlers
+  const clickErrorHandler = () => {
+    setValidFormula(true);
+    setValidImage(true);
+  };
 
   const submitHandler = (e) => {
     if (e.key === "Enter" && validFormula) {
       setFuncFormula(draftFormula);
+      setValidFormula(true);
+      setValidImage(true);
     }
   };
+
+  useEffect(() => {
+    let timeout;
+    if (!validFormula || !validImage) {
+      timeout = setTimeout(() => {
+        setValidFormula(true);
+        setValidImage(true);
+      }, 5000);
+    }
+    return () => clearTimeout(timeout);
+  }, [validFormula, validImage]);
 
   useEffect(() => {
     const functie = (e) => {
@@ -77,7 +102,7 @@ function App() {
       "zoomIn2d",
       "zoomOut2d",
     ],
-    // responsive: true,
+    responsive: true,
   };
 
   const { trace1 } = useMemo(() => {
@@ -91,18 +116,25 @@ function App() {
     );
 
     let Y = Array.from({ length: 2 * accuracy + 1 });
+    let validFunction = false,
+      validImage = false;
 
     for (let i = 0; i <= accuracy * 2; i++) {
       try {
         const input = X[i];
         const output = formulaTranslator.evaluate({ x: input });
+        validFunction = true;
         if (input < domain.min || input > domain.max) throw new Error();
         if (output < codomain.min || output > codomain.max) throw new Error();
+        validImage = true;
         Y[i] = output;
       } catch (e) {
         Y[i] = NaN;
       }
     }
+
+    if (!validFunction) setValidFormula(false);
+    else if (!validImage) setValidImage(false);
 
     const trace1 = {
       x: X,
@@ -131,7 +163,7 @@ function App() {
       color: "red",
       line: { width: 2, color: "DarkRed" },
     },
-    name: "Puncte Cheie",
+    name: "Puncte",
   };
 
   const data = [trace1];
@@ -162,7 +194,10 @@ function App() {
       title: "",
       minallowed: -30,
       maxallowed: 30,
+      rangemode: "tozero",
+      rangemin: 0,
     },
+    responsive: true,
   };
 
   useEffect(() => {
@@ -175,7 +210,7 @@ function App() {
         <div className="function_logo logo2">
           <InlineMath math={`f : `} />
           <div className="editable">
-            <InlineMath math={"[-1, +\\infty)"} />
+            <InlineMath math={math_symbols.R} />
           </div>
           <InlineMath math={`\\pmb{\\to}`} />
           <div className="editable">
@@ -201,33 +236,39 @@ function App() {
       </div>
 
       <div className="input_container">
-        <div className="function_logo">
-          <InlineMath math="f(x):" />
+        <div className="formula_container">
+          <div className="function_logo">
+            <InlineMath math="f(x):" />
+          </div>
+          <EditableMathField
+            className="math-field"
+            latex={draftFormula}
+            onChange={handleMathChange}
+            onKeyDown={submitHandler}
+          />
         </div>
-        {/* <div className="input">
-          <InlineMath math={draftFormula} />
-        </div> */}
-        {/* <input
-          onChange={inputHandler}
-          onKeyDown={submitHandler}
-          value={processedInput ? "" : draftFormula}
-          type="text"
-          id="function"
-          name="function"
-          style={
-            processedInput
-              ? { caretColor: "transparent" }
-              : { caretColor: "black" }
-          }
-        ></input> */}
-        <EditableMathField
-          className="math-field"
-          latex={draftFormula}
-          onChange={handleMathChange}
-          onKeyDown={submitHandler}
-        />
       </div>
-
+      {!validFormula && (
+        <div className="error_container" onClick={clickErrorHandler}>
+          <div className="error_title">Error: Invalid Syntax</div>
+          <div className="error_subtitle">Provide a valid function.</div>
+          <div className="error_info">Click to remove</div>
+        </div>
+      )}
+      {!validImage && validFormula && (
+        <div
+          className="error_container"
+          onClick={clickErrorHandler}
+          style={{ height: "5.5rem" }}
+        >
+          <div className="error_title">Error: Y-Axis Limit Exceeded</div>
+          <div className="error_subtitle">
+            View Range: &nbsp;
+            <InlineMath math={"f(x) \\in [-15, +15]"} />
+          </div>
+          <div className="error_info">Click to remove</div>
+        </div>
+      )}
       <div id="myDiv"></div>
     </div>
   );
