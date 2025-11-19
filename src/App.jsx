@@ -23,8 +23,14 @@ function App() {
   const [draftFormula, setDraftFormula] = useState(defaultFunction);
   const [validFormula, setValidFormula] = useState(true);
   const [validImage, setValidImage] = useState(true);
-  const [validFormulaError, setValidFormulaError] = useState(true);
+  const [windowSize, setWindowSize] = useState({
+    windowWidth:
+      typeof window.innerWidth !== "undefined" ? window.innerWidth : 0,
+    windowHeight:
+      typeof window.innerHeight !== "undefined" ? window.innerHeight : 0,
+  });
 
+  // Handlers
   const handleMathChange = (mathField) => {
     setValidFormula(true);
     setDraftFormula(mathField.latex());
@@ -38,7 +44,6 @@ function App() {
     console.log("formula e: " + validFormula);
   }, [funcFormula]);
 
-  // Handlers
   const clickErrorHandler = () => {
     setValidFormula(true);
     setValidImage(true);
@@ -63,17 +68,31 @@ function App() {
     return () => clearTimeout(timeout);
   }, [validFormula, validImage]);
 
+  // Use Effect default (for event listeners)
   useEffect(() => {
-    const functie = (e) => {
+    const preventDefaultHandler = (e) => {
       e.preventDefault();
     };
 
-    document.addEventListener("contextmenu", functie);
+    const resizeWindowHandler = () => {
+      setWindowSize({
+        windowWidth: window.innerWidth,
+        windowHeight: window.innerHeight,
+      });
+    };
+
+    document.addEventListener("contextmenu", preventDefaultHandler);
+    document.addEventListener("resize", resizeWindowHandler);
 
     return () => {
-      document.removeEventListener("contextmenu", functie);
+      document.removeEventListener("contextmenu", preventDefaultHandler);
+      document.removeEventListener("resize", resizeWindowHandler);
     };
   }, []);
+
+  useEffect(() => {
+    console.log(windowSize.windowHeight, windowSize.windowWidth);
+  }, [windowSize]);
 
   const formulaTranslator = useMemo(() => {
     const translatedFormula = translateLatexFormula(funcFormula);
@@ -169,8 +188,8 @@ function App() {
   const data = [trace1];
 
   const layout = {
-    height: 980,
-    width: 1890,
+    height: windowSize.windowHeight - 20,
+    width: windowSize.windowWidth - 20,
     title: "",
     dragmode: "pan",
     margin: {
@@ -206,18 +225,19 @@ function App() {
 
   return (
     <div className="app_container">
-      <div className="input_container cont2">
-        <div className="function_logo logo2">
-          <InlineMath math={`f : `} />
-          <div className="editable">
-            <InlineMath math={math_symbols.R} />
+      {windowSize.windowWidth > 1024 && (
+        <div className="input_container cont2">
+          <div className="function_logo logo2">
+            <InlineMath math={`f : `} />
+            <div className="editable">
+              <InlineMath math={math_symbols.R} />
+            </div>
+            <InlineMath math={`\\pmb{\\to}`} />
+            <div className="editable">
+              <InlineMath math={math_symbols.R} />
+            </div>
           </div>
-          <InlineMath math={`\\pmb{\\to}`} />
-          <div className="editable">
-            <InlineMath math={math_symbols.R} />
-          </div>
-        </div>
-        {/* <div className="input">
+          {/* <div className="input">
           <InlineMath math={processedInput ? draftFormula : ""} />
         </div>
         <input
@@ -233,7 +253,8 @@ function App() {
               : { caretColor: "black" }
           }
         ></input> */}
-      </div>
+        </div>
+      )}
 
       <div className="input_container">
         <div className="formula_container">

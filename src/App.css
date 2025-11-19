@@ -3,11 +3,11 @@
   /* padding: 1rem; */
   border-radius: 0.2rem;
   /* position: relative; */
+  overflow-y: hidden;
 }
 
 .app_container {
   /* border: 2px solid red; */
-  /* position: relative; */
 }
 
 .input_container {
